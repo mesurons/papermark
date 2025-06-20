@@ -22,7 +22,6 @@ const nextConfig = {
         has: [
           {
             type: "host",
-            key: "host",
             value: process.env.NEXT_PUBLIC_APP_BASE_HOST,
           },
         ],
@@ -123,7 +122,6 @@ const nextConfig = {
         has: [
           {
             type: "host",
-            key: "host",
             value: process.env.NEXT_PUBLIC_WEBHOOK_BASE_HOST,
           },
         ],
