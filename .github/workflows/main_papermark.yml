@@ -16,11 +16,6 @@ jobs:
     permissions:
       contents: read #This is required for actions/checkout
 
-env:
-  ENV WEBSITE_ENABLE_LOGGING=true
-  ENV WEBSITES_ENABLE_APP_SERVICE_STORAGE=true
-
-
     steps:
       - uses: actions/checkout@v4
 
@@ -53,6 +48,9 @@ env:
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
+env:
+  ENV WEBSITE_ENABLE_LOGGING=true
+  ENV WEBSITES_ENABLE_APP_SERVICE_STORAGE=true
 
     steps:
       - name: Download artifact from build job
