@@ -9,6 +9,9 @@ on:
       - main
   workflow_dispatch:
 
+ENV WEBSITE_ENABLE_LOGGING=true
+ENV WEBSITES_ENABLE_APP_SERVICE_STORAGE=true
+
 jobs:
   build:
     runs-on: ubuntu-latest
