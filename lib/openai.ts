@@ -1,3 +1,4 @@
+export const runtime = 'nodejs'
 import OpenAI from "openai";
 
 // Create an OpenAI API client (that's edge friendly!)

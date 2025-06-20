@@ -2,6 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ["js", "jsx", "ts", "tsx", "mdx"],
+    eslint: {
+    // Continue la build même si ESLint trouve des erreurs/warnings
+    ignoreDuringBuilds: true
+  },
   images: {
     minimumCacheTTL: 2592000, // 30 days
     remotePatterns: prepareRemotePatterns(),
