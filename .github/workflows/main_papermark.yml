@@ -67,6 +67,17 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_16813D759948431ABAF7D41D4742D2EC }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FDF13084E37D41D4ADB13CFC06877FCB }}
 
+      - name: Enable stdout/stderr logging in Azure App Service
+        run: |
+          az webapp log config \
+            --name papermark \
+            --resource-group David_rebricole \
+            --application-logging true \
+            --docker-container-logging filesystem
+        env:
+          AZURE_HTTP_USER_AGENT: "actions"
+      # Remplace <TON_RESOURCE_GROUP> par le vrai nom (ex: PapermarkRG)
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
