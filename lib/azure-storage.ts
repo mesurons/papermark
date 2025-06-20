@@ -1,4 +1,4 @@
-import { BlobServiceClient, generateBlobSASQueryParameters, BlobSASPermissions } from "@azure/storage-blob"; // ✅ correct
+import { BlobServiceClient, generateBlobSASQueryParameters, BlobSASPermissions, StorageSharedKeyCredential } from "@azure/storage-blob"; // ✅ correct
 
 
 
@@ -27,6 +27,8 @@ export async function generateSecureDownloadUrl(fileName: string) {
     expiresOn: new Date(new Date().valueOf() + 60 * 60 * 1000), // 1 heure
   };
 
-  const sasToken = generateBlobSASQueryParameters(sasOptions, blobServiceClient.credential).toString();
+  const credential = blobServiceClient.credential as StorageSharedKeyCredential;
+  const sasToken = generateBlobSASQueryParameters(sasOptions, credential).toString();
+
   return `${blockBlobClient.url}?${sasToken}`;
 }
