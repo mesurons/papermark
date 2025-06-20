@@ -19,13 +19,6 @@ const nextConfig = {
         source: "/",
         destination: "/dashboard",
         permanent: false,
-        has: [
-          {
-            type: "host",
-            key: "host",
-            value: process.env.NEXT_PUBLIC_APP_BASE_HOST,
-          },
-        ],
       },
       {
         source: "/view/cm2xiaxzo000d147xszm9q72o",
@@ -49,9 +42,12 @@ const nextConfig = {
 
     return [
       {
-        // Default headers for all routes
-        source: "/:path*",
+        source: "/:path*", // Applique à toutes les routes
         headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex", // interdit l'indexation partout
+          },
           {
             key: "Referrer-Policy",
             value: "no-referrer-when-downgrade",
@@ -81,23 +77,13 @@ const nextConfig = {
               `img-src 'self' data: blob: https: ${isDev ? "http:" : ""}; ` +
               `font-src 'self' data: https: ${isDev ? "http:" : ""}; ` +
               `frame-ancestors 'none'; ` +
-              `connect-src 'self' https: ${isDev ? "http: ws: wss:" : ""}; ` + // Add WebSocket for hot reload
+              `connect-src 'self' https: ${isDev ? "http: ws: wss:" : ""}; ` +
               `${isDev ? "" : "upgrade-insecure-requests;"} ` +
               "report-to csp-endpoint;",
           },
         ],
       },
       {
-        source: "/view/:path*",
-        headers: [
-          {
-            key: "X-Robots-Tag",
-            value: "noindex",
-          },
-        ],
-      },
-      {
-        // Embed routes - allow iframe embedding
         source: "/view/:path*/embed",
         headers: [
           {
@@ -108,8 +94,8 @@ const nextConfig = {
               `style-src 'self' 'unsafe-inline' https: ${isDev ? "http:" : ""}; ` +
               `img-src 'self' data: blob: https: ${isDev ? "http:" : ""}; ` +
               `font-src 'self' data: https: ${isDev ? "http:" : ""}; ` +
-              "frame-ancestors *; " + // This allows iframe embedding
-              `connect-src 'self' https: ${isDev ? "http: ws: wss:" : ""}; ` + // Add WebSocket for hot reload
+              "frame-ancestors *; " +
+              `connect-src 'self' https: ${isDev ? "http: ws: wss:" : ""}; ` +
               `${isDev ? "" : "upgrade-insecure-requests;"}`,
           },
           {
@@ -118,40 +104,9 @@ const nextConfig = {
           },
         ],
       },
-      {
-        source: "/services/:path*",
-        has: [
-          {
-            type: "host",
-            key: "host",
-            value: process.env.NEXT_PUBLIC_WEBHOOK_BASE_HOST,
-          },
-        ],
-        headers: [
-          {
-            key: "X-Robots-Tag",
-            value: "noindex",
-          },
-        ],
-      },
-      {
-        source: "/api/webhooks/services/:path*",
-        headers: [
-          {
-            key: "X-Robots-Tag",
-            value: "noindex",
-          },
-        ],
-      },
-      {
-        source: "/unsubscribe",
-        headers: [
-          {
-            key: "X-Robots-Tag",
-            value: "noindex",
-          },
-        ],
-      },
+      // Enlève la section /services/:path* avec "has"
+      // Enlève la section /api/webhooks/services/:path*
+      // Enlève la section /unsubscribe
     ];
   },
   experimental: {
@@ -164,24 +119,17 @@ const nextConfig = {
 
 function prepareRemotePatterns() {
   let patterns = [
-    // static images and videos
     { protocol: "https", hostname: "assets.papermark.io" },
     { protocol: "https", hostname: "cdn.papermarkassets.com" },
     { protocol: "https", hostname: "d2kgph70pw5d9n.cloudfront.net" },
-    // twitter img
     { protocol: "https", hostname: "pbs.twimg.com" },
-    // linkedin img
     { protocol: "https", hostname: "media.licdn.com" },
-    // google img
     { protocol: "https", hostname: "lh3.googleusercontent.com" },
-    // papermark img
     { protocol: "https", hostname: "www.papermark.io" },
     { protocol: "https", hostname: "app.papermark.io" },
     { protocol: "https", hostname: "www.papermark.com" },
     { protocol: "https", hostname: "app.papermark.com" },
-    // useragent img
     { protocol: "https", hostname: "faisalman.github.io" },
-    // special document pages
     { protocol: "https", hostname: "d36r2enbzam0iu.cloudfront.net" },
   ];
 
@@ -201,7 +149,6 @@ function prepareRemotePatterns() {
 
   if (process.env.VERCEL_ENV === "production") {
     patterns.push({
-      // production vercel blob
       protocol: "https",
       hostname: "yoywvlh29jppecbh.public.blob.vercel-storage.com",
     });
@@ -212,7 +159,6 @@ function prepareRemotePatterns() {
     process.env.NODE_ENV === "development"
   ) {
     patterns.push({
-      // staging vercel blob
       protocol: "https",
       hostname: "36so9a8uzykxknsu.public.blob.vercel-storage.com",
     });
