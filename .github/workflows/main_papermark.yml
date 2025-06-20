@@ -9,14 +9,17 @@ on:
       - main
   workflow_dispatch:
 
-ENV WEBSITE_ENABLE_LOGGING=true
-ENV WEBSITES_ENABLE_APP_SERVICE_STORAGE=true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: read #This is required for actions/checkout
+
+env:
+  ENV WEBSITE_ENABLE_LOGGING=true
+  ENV WEBSITES_ENABLE_APP_SERVICE_STORAGE=true
+
 
     steps:
       - uses: actions/checkout@v4
