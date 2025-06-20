@@ -72,7 +72,7 @@ jobs:
           az webapp log config \
             --name papermark \
             --resource-group David_rebricole \
-            --application-logging true \
+            --application-logging filesystem \
             --docker-container-logging filesystem
         env:
           AZURE_HTTP_USER_AGENT: "actions"
