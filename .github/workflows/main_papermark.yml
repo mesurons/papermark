@@ -9,12 +9,11 @@ on:
       - main
   workflow_dispatch:
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read # Required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
@@ -46,11 +45,12 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
     env:
       WEBSITE_ENABLE_LOGGING: true
       WEBSITES_ENABLE_APP_SERVICE_STORAGE: true
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -59,7 +59,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -70,24 +70,16 @@ jobs:
       - name: Stop Azure Web App before deployment
         run: az webapp stop --name papermark --resource-group David_rebricole
 
-      - name: Enable stdout/stderr logging in Azure App Service
-        run: |
-          az webapp log config \
-            --name papermark \
-            --resource-group David_rebricole \
-            --application-logging filesystem \
-            --docker-container-logging filesystem
-        env:
-          AZURE_HTTP_USER_AGENT: "actions"
-      # Remplace <TON_RESOURCE_GROUP> par le vrai nom (ex: PapermarkRG)
-
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'papermark'
           slot-name: 'Production'
           package: .
-          
+
       - name: Start Azure Web App after deployment
         run: az webapp start --name papermark --resource-group David_rebricole
+
+      - name: Voir les logs récents de démarrage
+        run: az webapp log tail --name papermark --resource-group David_rebricole --timeout 20
