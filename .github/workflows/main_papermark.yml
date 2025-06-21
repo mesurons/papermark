@@ -48,10 +48,9 @@ jobs:
     permissions:
       id-token: write #This is required for requesting the JWT
       contents: read #This is required for actions/checkout
-env:
-  WEBSITE_ENABLE_LOGGING: true
-  WEBSITES_ENABLE_APP_SERVICE_STORAGE: true
-
+    env:
+      WEBSITE_ENABLE_LOGGING: true
+      WEBSITES_ENABLE_APP_SERVICE_STORAGE: true
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -67,6 +66,17 @@ env:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_120981CCFEA044749073A8EFC66635F1 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_16813D759948431ABAF7D41D4742D2EC }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FDF13084E37D41D4ADB13CFC06877FCB }}
+
+      - name: Enable stdout/stderr logging in Azure App Service
+        run: |
+          az webapp log config \
+            --name papermark \
+            --resource-group David_rebricole \
+            --application-logging filesystem \
+            --docker-container-logging filesystem
+        env:
+          AZURE_HTTP_USER_AGENT: "actions"
+      # Remplace <TON_RESOURCE_GROUP> par le vrai nom (ex: PapermarkRG)
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
