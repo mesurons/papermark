@@ -70,8 +70,24 @@ jobs:
       - name: Stop Azure Web App before deployment
         run: |
           az webapp stop --name papermark --resource-group David_rebricole
-          echo "⏳ Attente 15s que l'app s'arrête correctement..."
-          sleep 15
+          echo "⏳ Attente que l'application soit complètement arrêtée..."
+
+          for i in {1..30}; do
+            STATUS=$(az webapp show --name papermark --resource-group David_rebricole --query "state" -o tsv)
+            echo "État actuel : $STATUS"
+            if [ "$STATUS" = "Stopped" ]; then
+              echo "✅ Application stoppée."
+              break
+            fi
+            echo "⏳ Encore active, nouvelle vérification dans 5 secondes..."
+            sleep 5
+          done
+
+          FINAL_STATUS=$(az webapp show --name papermark --resource-group David_rebricole --query "state" -o tsv)
+          if [ "$FINAL_STATUS" != "Stopped" ]; then
+            echo "❌ L'application n'a pas pu être stoppée. Abandon du déploiement."
+            exit 1
+          fi
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -85,4 +101,6 @@ jobs:
         run: az webapp start --name papermark --resource-group David_rebricole
 
       - name: Voir les logs récents de démarrage
-        run: az webapp log tail --name papermark --resource-group David_rebricole --timeout 20
+        run: |
+          echo "📦 Affichage des 20 dernières secondes de logs..."
+          timeout 20s az webapp log tail --name papermark --resource-group David_rebricole
