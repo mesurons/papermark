@@ -9,12 +9,11 @@ on:
       - main
   workflow_dispatch:
 
-
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read # Required for actions/checkout
 
     steps:
       - uses: actions/checkout@v4
@@ -46,11 +45,12 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
     env:
       WEBSITE_ENABLE_LOGGING: true
       WEBSITES_ENABLE_APP_SERVICE_STORAGE: true
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -59,7 +59,7 @@ jobs:
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -67,22 +67,40 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_16813D759948431ABAF7D41D4742D2EC }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FDF13084E37D41D4ADB13CFC06877FCB }}
 
-      - name: Enable stdout/stderr logging in Azure App Service
+      - name: Stop Azure Web App before deployment
         run: |
-          az webapp log config \
-            --name papermark \
-            --resource-group David_rebricole \
-            --application-logging filesystem \
-            --docker-container-logging filesystem
-        env:
-          AZURE_HTTP_USER_AGENT: "actions"
-      # Remplace <TON_RESOURCE_GROUP> par le vrai nom (ex: PapermarkRG)
+          az webapp stop --name papermark --resource-group David_rebricole
+          echo "⏳ Attente que l'application soit complètement arrêtée..."
 
-      - name: 'Deploy to Azure Web App'
+          for i in {1..30}; do
+            STATUS=$(az webapp show --name papermark --resource-group David_rebricole --query "state" -o tsv)
+            echo "État actuel : $STATUS"
+            if [ "$STATUS" = "Stopped" ]; then
+              echo "✅ Application stoppée."
+              break
+            fi
+            echo "⏳ Encore active, nouvelle vérification dans 5 secondes..."
+            sleep 5
+          done
+
+          FINAL_STATUS=$(az webapp show --name papermark --resource-group David_rebricole --query "state" -o tsv)
+          if [ "$FINAL_STATUS" != "Stopped" ]; then
+            echo "❌ L'application n'a pas pu être stoppée. Abandon du déploiement."
+            exit 1
+          fi
+
+      - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'papermark'
           slot-name: 'Production'
           package: .
-          
+
+      - name: Start Azure Web App after deployment
+        run: az webapp start --name papermark --resource-group David_rebricole
+
+      - name: Voir les logs récents de démarrage
+        run: |
+          echo "📦 Affichage des 20 dernières secondes de logs..."
+          timeout 20s az webapp log tail --name papermark --resource-group David_rebricole
