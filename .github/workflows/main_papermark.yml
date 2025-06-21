@@ -71,7 +71,6 @@ jobs:
         run: |
           az webapp stop --name papermark --resource-group David_rebricole
           echo "⏳ Attente que l'application soit complètement arrêtée..."
-
           for i in {1..30}; do
             STATUS=$(az webapp show --name papermark --resource-group David_rebricole --query "state" -o tsv)
             echo "État actuel : $STATUS"
@@ -82,7 +81,6 @@ jobs:
             echo "⏳ Encore active, nouvelle vérification dans 5 secondes..."
             sleep 5
           done
-
           FINAL_STATUS=$(az webapp show --name papermark --resource-group David_rebricole --query "state" -o tsv)
           if [ "$FINAL_STATUS" != "Stopped" ]; then
             echo "❌ L'application n'a pas pu être stoppée. Abandon du déploiement."
@@ -103,4 +101,4 @@ jobs:
       - name: Voir les logs récents de démarrage
         run: |
           echo "📦 Affichage des 20 dernières secondes de logs..."
-          timeout 20s az webapp log tail --name papermark --resource-group David_rebricole
+          timeout 20s az webapp log tail --name papermark --resource-group David_rebricole || echo "✅ Fin des logs (timeout attendu)"
