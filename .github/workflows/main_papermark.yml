@@ -68,7 +68,7 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FDF13084E37D41D4ADB13CFC06877FCB }}
 
       - name: Stop Azure Web App before deployment
-          run: az webapp stop --name papermark --resource-group David_rebricole
+        run: az webapp stop --name papermark --resource-group David_rebricole
 
       - name: Enable stdout/stderr logging in Azure App Service
         run: |
