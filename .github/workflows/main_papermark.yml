@@ -68,7 +68,10 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FDF13084E37D41D4ADB13CFC06877FCB }}
 
       - name: Stop Azure Web App before deployment
-        run: az webapp stop --name papermark --resource-group David_rebricole
+        run: |
+          az webapp stop --name papermark --resource-group David_rebricole
+          echo "⏳ Attente 15s que l'app s'arrête correctement..."
+          sleep 15
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
