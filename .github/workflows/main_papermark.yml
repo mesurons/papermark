@@ -67,6 +67,9 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_16813D759948431ABAF7D41D4742D2EC }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FDF13084E37D41D4ADB13CFC06877FCB }}
 
+      - name: Stop Azure Web App before deployment
+          run: az webapp stop --name papermark --resource-group David_rebricole
+
       - name: Enable stdout/stderr logging in Azure App Service
         run: |
           az webapp log config \
@@ -86,3 +89,5 @@ jobs:
           slot-name: 'Production'
           package: .
           
+      - name: Start Azure Web App after deployment
+        run: az webapp start --name papermark --resource-group David_rebricole
